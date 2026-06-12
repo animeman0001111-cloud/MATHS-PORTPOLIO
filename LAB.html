@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linear Algebra Lab – Experiments</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --acc:#7C3AED;--acc2:#A855F7;--acc3:#C084FC;--acc4:#F3E8FF;
+  --bg:#0F0A1A;--surface:#1E1530;--surface2:#2A1F45;
+  --text:#E2D9F3;--muted:#9580BB;--border:rgba(124,58,237,.25);--bordl:rgba(124,58,237,.5);
+}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:0;opacity:.4}
+
+/* NAV */
+nav{background:rgba(15,10,26,.85);backdrop-filter:blur(20px);padding:.9rem 2rem;display:flex;align-items:center;gap:1.2rem;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+.brand{display:flex;align-items:center;gap:.6rem;font-weight:800;font-size:1rem;color:#fff;text-decoration:none;letter-spacing:-.3px}
+.nav-links{display:flex;gap:.2rem;flex:1;flex-wrap:wrap}
+.nav-links a{text-decoration:none;color:var(--muted);font-size:.8rem;font-weight:500;transition:.2s;padding:.35rem .7rem;border-radius:8px;white-space:nowrap}
+.nav-links a:hover{color:#fff;background:rgba(124,58,237,.2)}
+
+/* HERO */
+.hero{position:relative;text-align:center;padding:5rem 2rem 3rem;overflow:hidden}
+.hero-bg::before{content:'';position:absolute;top:-40%;left:50%;transform:translateX(-50%);width:800px;height:800px;background:radial-gradient(circle,rgba(124,58,237,.35) 0%,rgba(124,58,237,.05) 60%,transparent 70%)}
+.hero-inner{position:relative;z-index:1}
+.ch-badge{display:inline-flex;align-items:center;gap:.4rem;background:rgba(124,58,237,.2);color:var(--acc3);border:1px solid rgba(124,58,237,.4);font-size:.7rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:.4rem 1rem;border-radius:30px;margin-bottom:1.2rem}
+.hero h1{font-size:clamp(2rem,5vw,3rem);font-weight:900;color:#fff;letter-spacing:-1.5px}
+.hero h1 .accent{background:linear-gradient(135deg,var(--acc2),var(--acc3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p.sub{color:var(--muted);font-size:.95rem;max-width:600px;margin:.8rem auto 0}
+
+/* CONTENT */
+.content{max-width:1000px;margin:2rem auto;padding:0 1.5rem;position:relative;z-index:1}
+
+/* EXPERIMENT CARD */
+.exp{background:var(--surface);border-radius:20px;padding:2rem 2.2rem;margin-bottom:2rem;border:1px solid var(--border);scroll-margin-top:80px}
+.exp h2{color:#fff;font-size:1.25rem;font-weight:700;margin-bottom:.3rem;padding-left:1rem;position:relative}
+.exp h2::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);height:70%;width:3px;background:linear-gradient(180deg,var(--acc2),var(--acc));border-radius:3px}
+.exp .desc{color:var(--muted);font-size:.9rem;margin:.5rem 0 1.2rem;padding-left:1rem}
+
+/* CODE BLOCK */
+.code-block{background:#120c1f;border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:1rem}
+.code-head{display:flex;align-items:center;gap:.5rem;padding:.6rem 1rem;background:rgba(124,58,237,.08);border-bottom:1px solid var(--border);font-size:.75rem;color:var(--acc3);font-family:'JetBrains Mono',monospace;font-weight:600}
+.code-head .dot{width:9px;height:9px;border-radius:50%;background:var(--acc2)}
+.code-block pre{margin:0;padding:1rem 1.2rem;overflow-x:auto;font-family:'JetBrains Mono',monospace;font-size:.78rem;color:#d9c9f5;line-height:1.6}
+.code-block pre::-webkit-scrollbar{height:6px}
+.code-block pre::-webkit-scrollbar-thumb{background:var(--acc);border-radius:3px}
+
+/* OUTPUT BLOCK */
+.output-block{background:rgba(124,58,237,.06);border:1px solid rgba(124,58,237,.2);border-radius:14px;padding:1rem 1.2rem;margin-bottom:1rem}
+.output-block .label{font-size:.7rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--acc2);font-weight:700;margin-bottom:.6rem}
+.output-block pre{margin:0;font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--text);white-space:pre-wrap;line-height:1.6}
+.output-block img{max-width:100%;border-radius:10px;margin-top:.5rem;display:block}
+
+/* TOGGLE */
+.toggle-btn{display:inline-flex;align-items:center;gap:.4rem;background:var(--surface2);color:var(--acc3);border:1px solid var(--bordl);border-radius:30px;padding:.4rem 1rem;font-size:.78rem;font-weight:600;cursor:pointer;transition:.2s;margin-bottom:1rem}
+.toggle-btn:hover{background:rgba(124,58,237,.2)}
+.collapsible{display:none}
+.collapsible.open{display:block}
+
+/* FOOTER */
+footer{text-align:center;padding:2.5rem;color:var(--muted);font-size:.82rem;border-top:1px solid var(--border)}
+
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--acc);border-radius:3px}
+::selection{background:rgba(124,58,237,.35);color:#fff}
+</style>
+</head>
+<body>
+<nav>
+  <a class="brand" href="#top">🧪 Linear Algebra Lab</a>
+  <div class="nav-links"><a href="chapter1.html">Ch 1</a>
+    <a href="chapter2.html">Ch 2</a>
+    <a href="chapter3.html">Ch 3</a>
+    <a href="chapter4.html">Ch 4</a>
+    <a href="chapter5.html">Ch 5</a>
+    <a href="chapter6.html">Ch 6</a>
+     <a href="LAB.html">LAB</a>
+  </div>
+</nav>
+
+<div class="hero" id="top">
+  <div class="hero-bg"></div>
+  <div class="hero-inner">
+    <div class="ch-badge">KLE Technological University</div>
+    <h1>Lab <span class="accent">Experiments</span></h1>
+    <p class="sub">Practical implementations exploring vectors, matrices, transformations, and eigen-decomposition with real-world AI/CS applications.</p>
+  </div>
+</div>
+
+<div class="content">
+
+<!-- EXP 1 -->
+<div class="exp" id="exp1">
+  <h2>Experiment 1 — Pixels as Vectors</h2>
+  <p class="desc">Loading an image as a NumPy array, extracting RGB pixel vectors, and computing difference/magnitude between neighbouring pixels.</p>
+  <button class="toggle-btn" onclick="toggle('c1')">▶ Show Code</button>
+  <div class="collapsible" id="c1">
+    <div class="code-block"><div class="code-head"><span class="dot"></span>experiment1.py</div><pre>import numpy as np
+import matplotlib.pyplot as plt
+from PIL import Image
+
+img_pil = Image.open("sunset.jpeg").convert("RGB")
+img = np.array(img_pil)
+print("image shape (rows, cols, channels):", img.shape)
+
+plt.imshow(img); plt.title("Original Image"); plt.axis("off"); plt.show()
+
+# Access a specific pixel
+i, j = 50, 80
+pixel1 = img[i, j].reshape(3,1)
+print("Pixel RGB Vector:\n", pixel1)
+
+R, G, B = pixel1[0], pixel1[1], pixel1[2]
+print("Red:", R, "Green:", G, "Blue:", B)
+
+# Compare neighbouring pixel
+pixel2 = img[i+1, j].reshape(3,1)
+difference = pixel2 - pixel1
+magnitude = np.linalg.norm(difference)
+print("Difference vector:\n", difference)
+print("Change magnitude:", magnitude)</pre></div>
+  </div>
+  <div class="output-block">
+    <div class="label">Output</div>
+    <pre>image shape (rows, cols, channels): (1280, 963, 3)
+Selected pixel location: (50, 80)
+Pixel RGB Vector: [[82] [92] [93]]
+Red: [82]  Green: [92]  Blue: [93]
+
+Neighbouring pixel (51, 80): [[82] [92] [93]]
+Difference vector: [[0] [0] [0]]
+Change magnitude: 0.0</pre>
+  </div>
+</div>
+
+<!-- EXP 2 -->
+<div class="exp" id="exp2">
+  <h2>Experiment 2 — RGB Color Space &amp; Document Similarity</h2>
+  <p class="desc">Visualizing RGB basis vectors, linear color mixing, blending two images, and computing dot-product/cosine similarity for text documents.</p>
+  <button class="toggle-btn" onclick="toggle('c2')">▶ Show Code</button>
+  <div class="collapsible" id="c2">
+    <div class="code-block"><div class="code-head"><span class="dot"></span>experiment2.py</div><pre>import numpy as np
+import matplotlib.pyplot as plt
+from skimage import io
+import cv2
+
+def show_color(rgb):
+    img = np.ones((100,100,3))
+    img[:,:,0]*=rgb[0]; img[:,:,1]*=rgb[1]; img[:,:,2]*=rgb[2]
+    plt.imshow(img); plt.axis('off')
+
+show_color([1,0,0]); show_color([0,1,0]); show_color([0,0,1])
+
+# Linear mixing of RGB basis vectors
+def mix(a,b,c):
+    red, green, blue = np.array([1,0,0]), np.array([0,1,0]), np.array([0,0,1])
+    color = a*red + b*green + c*blue
+    return np.clip(color,0,1)
+
+color = mix(0.5,0.3,0.4)
+
+# Blending two images
+A = io.imread("P1.jpeg")/255
+B = io.imread("P2.jpeg")/255
+B = cv2.resize(B,(A.shape[1],A.shape[0]))
+A = A[:,:,:3]
+
+def combine(a,b): return a*A + b*B
+show(combine(0.5,0.5))
+
+# --- Document similarity using TF-IDF + cosine similarity ---
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+
+query = "machine learning algotithms"
+doc1 = "machine learning algorithms"
+doc2 = "Machine learning is important in data science and AI..."
+doc3 = "Football is one of the most popular sports in the world..."
+
+vectorizer = TfidfVectorizer(norm=None)
+vectors = vectorizer.fit_transform([query,doc1,doc2,doc3]).toarray()
+Q,D1,D2,D3 = vectors
+
+print("Dot Q.D1:", np.dot(Q,D1), " Cosine:", cosine_similarity([Q],[D1])[0][0])
+print("Dot Q.D2:", np.dot(Q,D2), " Cosine:", cosine_similarity([Q],[D2])[0][0])
+print("Dot Q.D3:", np.dot(Q,D3), " Cosine:", cosine_similarity([Q],[D3])[0][0])</pre></div>
+  </div>
+  <div class="output-block">
+    <div class="label">Output</div>
+    <pre>A.shape: (389, 389, 3)   B.shape: (256, 256, 3)
+
+DOT PRODUCT RESULTS
+Query vs Doc1: 2.9921602942430736
+Query vs Doc2: 2.9921602942430736
+Query vs Doc3: 0.0
+
+COSINE SIMILARITY RESULTS
+Query vs Doc1: 0.44898138090784406
+Query vs Doc2: 0.21307446161092244
+Query vs Doc3: 0.0
+
+→ Doc1 is most similar to the query (highest cosine similarity)
+→ Doc3 (unrelated topic) has zero similarity</pre>
+  </div>
+</div>
+
+<!-- EXP 3 -->
+<div class="exp" id="exp3">
+  <h2>Experiment 3 — Image Transformations (Scale, Rotate, Shear, Project)</h2>
+  <p class="desc">Applying linear geometric transformations to an image: scaling, rotation, shearing, projection, and comparing composition order (scale→rotate vs rotate→scale).</p>
+  <button class="toggle-btn" onclick="toggle('c3')">▶ Show Code</button>
+  <div class="collapsible" id="c3">
+    <div class="code-block"><div class="code-head"><span class="dot"></span>experiment3.py</div><pre>from PIL import Image
+import matplotlib.pyplot as plt
+
+img = Image.open("P1.jpeg")
+print("Original size:", img.size)   # (389, 389)
+
+# Scaling
+scale = 4
+scaled_img = img.resize((img.size[0]*scale, img.size[1]*scale))
+print("Scaled size:", scaled_img.size)   # (1556, 1556)
+
+# Rotation
+rotated_img = img.rotate(45, fillcolor=(0,0,0))
+
+# Multiple rotations
+for angle in [30, 60, 90, 120]:
+    img.rotate(angle, fillcolor=(0,0,0))
+
+# Shearing
+shear_factor = 0.5
+w,h = img.size
+shear_matrix = (1, shear_factor, 0, 0, 1, 0)
+sheared_img = img.transform(
+    (int(w + shear_factor*h), h),
+    Image.AFFINE, shear_matrix, fillcolor=(0,0,0)
+)
+
+# Projection (vertical squashing)
+projected_img = img.resize((w, int(h*0.1)))
+
+# Order of operations: scale then rotate vs rotate then scale
+scale, angle = 2, 45
+scaled = img.resize((w*scale, h*scale))
+scale_then_rotate = scaled.rotate(angle, fillcolor=(0,0,0))
+
+rotated = img.rotate(angle, fillcolor=(0,0,0))
+rotate_then_scale = rotated.resize((rotated.size[0]*scale, rotated.size[1]*scale))</pre></div>
+  </div>
+  <div class="output-block">
+    <div class="label">Output</div>
+    <pre>Original size: (389, 389)
+Scaled size:   (1556, 1556)
+
+→ Rotation rotates image about its center, expanding canvas (black fill)
+→ Shearing skews the image along x-axis, widening the bounding box
+→ Projection compresses image vertically (10% of original height)
+→ Scale→Rotate and Rotate→Scale produce visually similar results,
+  but pixel-level order of operations differs slightly due to
+  interpolation at each step (non-commutativity of transforms
+  on discrete pixel grids)</pre>
+  </div>
+</div>
+
+<!-- EXP 4 -->
+<div class="exp" id="exp4">
+  <h2>Experiment 4 — Matrix Transformations on Images (Brightness &amp; Contrast)</h2>
+  <p class="desc">Treating image pixels as vectors and applying matrix multiplication (contrast matrix) and vector addition (brightness vector), including repeated application via matrix powers.</p>
+  <button class="toggle-btn" onclick="toggle('c4')">▶ Show Code</button>
+  <div class="collapsible" id="c4">
+    <div class="code-block"><div class="code-head"><span class="dot"></span>experiment4.py</div><pre>import numpy as np
+import matplotlib.pyplot as plt
+from PIL import Image
+
+img_pil = Image.open("P1.jpeg")
+img = np.array(img_pil)[:,:,:3]
+
+I = np.eye(3)                       # Identity matrix
+C = np.array([[1.5,0,0],[0,1.5,0],[0,0,1.5]])   # Contrast matrix
+b = np.array([40,40,40])            # Brightness vector
+
+bright_img    = img + b
+composed_img  = np.tensordot(img, C.T, axes=1) + (C @ b)
+contrast_img  = np.tensordot(bright_img, C.T, axes=1)
+
+# Repeated contrast application via matrix powers
+C2 = np.linalg.matrix_power(C,2)
+C3 = np.linalg.matrix_power(C,3)
+contrast_twice  = np.tensordot(img, C2.T, axes=1)
+contrast_thrice = np.tensordot(img, C3.T, axes=1)
+
+def clip(x): return np.clip(x,0,255).astype(np.uint8)
+
+titles = ["Original","Brightness","Matrix Composition",
+          "Contrast(C)","Contrast Twice(C^2)","Contrast Thrice(C^3)"]
+images = [clip(img), clip(bright_img), clip(composed_img),
+          clip(contrast_img), clip(contrast_twice), clip(contrast_thrice)]
+
+plt.figure(figsize=(14,8))
+for i,im in enumerate(images):
+    plt.subplot(2,3,i+1); plt.imshow(im); plt.title(titles[i]); plt.axis("off")
+plt.show()</pre></div>
+  </div>
+  <div class="output-block">
+    <div class="label">Output</div>
+    <pre>→ Brightness vector b shifts all pixel values up (image lightens)
+→ Contrast matrix C = 1.5·I scales pixel intensities (contrast increases)
+→ Composed transform = Contrast applied to shifted vector (Ax + b form)
+→ C^2 and C^3 (repeated contrast) progressively oversaturate
+  the image, clipping to pure white at higher powers</pre>
+  </div>
+</div>
+
+<!-- EXP 5 -->
+<div class="exp" id="exp5">
+  <h2>Experiment 5 — Solving Linear Systems (Gaussian Elimination, LU Decomposition)</h2>
+  <p class="desc">Custom Gaussian elimination solver with RREF, rank-based classification (unique / infinite / no solution), parametric solutions using SymPy, and LU decomposition for production-planning systems.</p>
+  <button class="toggle-btn" onclick="toggle('c5')">▶ Show Code</button>
+  <div class="collapsible" id="c5">
+    <div class="code-block"><div class="code-head"><span class="dot"></span>experiment5.py</div><pre>from sympy import symbols, Matrix
+import sympy as sp
+
+def solve_system(A, b):
+    EPS = 1e-9
+    m, n = len(A), len(A[0])
+    M = [A[i][:] + [b[i]] for i in range(m)]
+
+    # Forward elimination with partial pivoting
+    row = 0
+    for col in range(n):
+        if row >= m: break
+        max_row = max(range(row,m), key=lambda r: abs(M[r][col]))
+        if abs(M[max_row][col]) < EPS: continue
+        M[row], M[max_row] = M[max_row], M[row]
+        for r in range(row+1, m):
+            ratio = M[r][col]/M[row][col]
+            for c in range(col, n+1):
+                M[r][c] -= ratio*M[row][c]
+        row += 1
+
+    # Check consistency
+    for i in range(m):
+        if all(abs(M[i][j])<EPS for j in range(n)) and abs(M[i][n])>EPS:
+            print("No solution"); return
+
+    pivot_cols, pivot_rows = [], []
+    for i in range(m):
+        for j in range(n):
+            if abs(M[i][j]) > EPS:
+                pivot_rows.append(i); pivot_cols.append(j); break
+    rank = len(pivot_cols)
+
+    if rank < n:
+        print("Infinite solutions")
+        free_vars = [j for j in range(n) if j not in pivot_cols]
+        t = symbols('t0:'+str(len(free_vars)))
+        sol = [0]*n
+        for i,fv in enumerate(free_vars): sol[fv] = t[i]
+        for i in reversed(range(rank)):
+            r,c = pivot_rows[i], pivot_cols[i]
+            s = M[r][n]
+            for j in range(c+1,n): s -= M[r][j]*sol[j]
+            sol[c] = s/M[r][c]
+        for i in range(n): print(f"x{i+1} =", sol[i])
+    else:
+        x = [0]*n
+        for i in reversed(range(rank)):
+            r,c = pivot_rows[i], pivot_cols[i]
+            s = M[r][n]
+            for j in range(c+1,n): s -= M[r][j]*x[j]
+            x[c] = s/M[r][c]
+        print("Unique solution:")
+        for i in range(n): print(f"x{i+1} =", round(x[i],6))
+
+# 10x10 system (infinite solutions, rank 9)
+A = [[5,1,1,0,1,0,0,1,0,1],[1,6,1,1,0,1,0,0,1,0], ...]
+b = [60,70,50,80,45,30,40,35,55,60]
+solve_system(A, b)
+
+# --- LU Decomposition (production plan) ---
+sp.init_printing()
+A = Matrix(A); b = Matrix(b)
+L, U, perm = A.LUdecomposition()
+P = sp.eye(A.shape[0])
+for i,j in enumerate(perm): P.row_swap(i,j)
+
+y = L.solve(P*b)
+x = U.solve(y)   # fails if U is singular</pre></div>
+  </div>
+  <div class="output-block">
+    <div class="label">Output</div>
+    <pre>--- Gaussian Elimination (10×10 system) ---
+Infinite solutions
+x1 = 8.5474 - 0.2041*t0
+x2 = 0.0868*t0 + 6.0362
+x3 = 4.1342 - 0.1461*t0
+x4 = 0.0385*t0 + 10.1290
+x5 = 0.0188*t0 + 4.4391
+x6 = 0.0106*t0 + 1.4746
+x7 = 4.6166 - 0.1907*t0
+x8 = 0.0609*t0 + 2.6537
+x9 = 9.4978 - 0.2195*t0
+x10 = t0
+
+--- Small 3x3 redundant system A=[[1,1,1],[2,2,2],[3,3,3]], b=[3,6,9] ---
+Infinite solutions
+x1 = -t0 - t1 + 3
+x2 = t0
+x3 = t1
+
+--- LU Decomposition ---
+L, U computed successfully (fractional entries)
+U has a zero row → det(A)=0 → matrix singular
+NonInvertibleMatrixError: Matrix det == 0; not invertible.
+Try M.gauss_jordan_solve(rhs) for a parametric solution.</pre>
+  </div>
+</div>
+
+<!-- EXP 6 -->
+<div class="exp" id="exp6">
+  <h2>Experiment 6 — Rank, Column Space, Null Space &amp; Recommendation Logic</h2>
+  <p class="desc">Using SymPy to compute RREF, rank, column space, and null space of a user–genre matrix, interpreting redundancy to drive a Netflix-style personalization recommendation.</p>
+  <button class="toggle-btn" onclick="toggle('c6')">▶ Show Code</button>
+  <div class="collapsible" id="c6">
+    <div class="code-block"><div class="code-head"><span class="dot"></span>experiment6.py</div><pre>import sympy as sp
+
+def analyze_matrix(A):
+    A = sp.Matrix(A)
+    print("Matrix:\n", A)
+
+    R, pivots = A.rref()
+    print("RREF:\n", R)
+
+    rank = len(pivots)
+    print("Rank:", rank)
+
+    print("Column Space Basis:")
+    for c in A.columnspace(): print(c)
+
+    print("Null Space Basis:")
+    for n in A.nullspace(): print(n)
+
+    num_features = A.shape[1]
+    redundancy = num_features - rank
+    print("Total Features:", num_features)
+    print("Independent Features (Rank):", rank)
+    print("Redundant Features:", redundancy)
+
+    # Genre interpretation
+    genres = ["Action","Horror","Sci-Fi"]
+    if rank == 0:
+        print("No data — Default/Trending content, Personalization: None")
+    if rank == 1:
+        print("All genres behave the same — Personalization: Very Low")
+    elif rank == len(genres):
+        print("All genres independent — Personalization: High")
+        for i,row in enumerate(A.tolist()):
+            idx = row.index(max(row))
+            print(f"User {i+1} → More {genres[idx]}")
+    else:
+        print("Partial redundancy — Personalization: Medium")
+        for i,row in enumerate(A.tolist()):
+            idx = row.index(max(row))
+            print(f"User {i+1} → Likely prefers {genres[idx]}")
+        if len(A.nullspace()) > 0:
+            print("Some behavior changes are invisible (null space present)")</pre></div>
+  </div>
+  <div class="output-block">
+    <div class="label">Output (conceptual interpretation)</div>
+    <pre>→ rank = 0  →  No pattern detected → Personalization: None
+→ rank = 1  →  All genres collapse to one direction
+               → Same recommendation for every user → Personalization: Very Low
+→ rank = 3  →  Action, Horror, Sci-Fi fully independent
+               → Unique per-user recommendation → Personalization: High
+→ 0 < rank < 3 → Partial redundancy
+               → Medium personalization; null space indicates
+                 hidden user-behavior dimensions Netflix cannot see</pre>
+  </div>
+</div>
+
+<!-- EXP 7 -->
+<div class="exp" id="exp7">
+  <h2>Experiment 7 — Least Squares Fitting &amp; QR Projection (Movie Recommendation)</h2>
+  <p class="desc">Projecting a user's preference vector onto a "movie matrix" using QR decomposition and the normal equation, then ranking individual movies by least-squares error to pick the best fit.</p>
+  <button class="toggle-btn" onclick="toggle('c7')">▶ Show Code</button>
+  <div class="collapsible" id="c7">
+    <div class="code-block"><div class="code-head"><span class="dot"></span>experiment7.py</div><pre>import numpy as np
+import matplotlib.pyplot as plt
+
+def analyze_user(U, movies):
+    A = np.column_stack(list(movies.values()))
+    Q, R = np.linalg.qr(A)
+
+    U_proj = Q @ Q.T @ U                      # QR projection
+    x = np.linalg.inv(A.T @ A) @ (A.T @ U)    # normal equation
+    y_fit = A @ x
+    lse = np.linalg.norm(U - y_fit)**2
+
+    print("Projected:", np.round(U_proj).astype(int))
+    print("Fitted values (Ax):", np.round(y_fit).astype(int))
+    print("LSE:", round(lse,2))
+
+    plt.plot(U,'o-',label='Original')
+    plt.plot(y_fit,'s--',label='Fitted(Ax)')
+    plt.legend(); plt.show()
+
+    best, err = None, float('inf')
+    for n, v in movies.items():
+        p = ((U @ v)/(v @ v)) * v
+        e = np.linalg.norm(U - p)**2
+        print(n, "LSE:", round(e,2))
+        if e < err: err, best = e, n
+    print("Top recommended movie:", best)
+
+movies = {
+    "M1_Tower Heist": np.array([1,0,1]),
+    "M2_Stree": np.array([0,1,1]),
+    "M3_Army of the dead": np.array([1,1,0])
+}
+
+# Case 1: balanced strong user
+analyze_user(np.array([7,6,1]), movies)
+
+# Case 3: conflicting / horror-dominant user
+analyze_user(np.array([0,5,1]), movies)</pre></div>
+  </div>
+  <div class="output-block">
+    <div class="label">Output</div>
+    <pre>--- Case 1: U = [7, 6, 1] ---
+Projected: [7 6 1]
+Fitted values (Ax): [7 6 1]
+LSE: 0.0
+
+M1_Tower Heist       LSE: 54.0
+M2_Stree             LSE: 61.5
+M3_Army of the dead  LSE: 1.5
+Top recommended movie: M3_Army of the dead
+
+--- Case 3: U = [0, 5, 1]  (horror dominant) ---
+Projected: [0 5 1]
+Fitted values (Ax): [0 5 1]
+LSE: 0.0
+
+M1_Tower Heist       LSE: 25.5
+M2_Stree             LSE: 8.0
+M3_Army of the dead  LSE: 13.5
+Top recommended movie: M2_Stree</pre>
+  </div>
+</div>
+
+<!-- EXP 8 -->
+<div class="exp" id="exp8">
+  <h2>Experiment 8 — Eigenvalues, Eigenvectors &amp; Genre Recommendation</h2>
+  <p class="desc">Computing eigenvalues/eigenvectors of a user-similarity matrix, classifying trend strength (dominant/balanced/weak), and recommending a genre via matrix-vector multiplication.</p>
+  <button class="toggle-btn" onclick="toggle('c8')">▶ Show Code</button>
+  <div class="collapsible" id="c8">
+    <div class="code-block"><div class="code-head"><span class="dot"></span>experiment8.py</div><pre>import numpy as np
+
+def recommend_genre(A, users, g):
+    vals, vecs = np.linalg.eig(A)
+    print("Eigenvalues:", np.round(vals,2))
+    print("Eigenvectors:\n", np.round(vecs,2))
+
+    for v in vals:
+        if v > 1:   print(v, "Strong dominant trend / important pattern")
+        elif v == 1: print(v, "Natural or balanced trend")
+        else:        print(v, "Weak or less significant trend")
+
+    print("\nRecommendations:")
+    for n, u in users.items():
+        u = np.array(u)
+        rec = g[np.argmax(A @ u)]
+        print(n, "Recommended genre:", rec)
+
+genres = ["Action","Horror","Sci-fi"]
+A = np.array([[2,1,1],
+              [1,2,1],
+              [1,1,2]])
+
+# Case 1: Balanced (eigen-aligned) user
+users = {"User1": [5,5,5]}
+recommend_genre(A, users, genres)</pre></div>
+  </div>
+  <div class="output-block">
+    <div class="label">Output</div>
+    <pre>Eigenvalues: [1. 4. 1.]
+Eigenvectors:
+[[-0.82  0.58  0.49]
+ [ 0.41  0.58 -0.81]
+ [ 0.41  0.58  0.32]]
+
+1.0  Weak or less significant trend
+4.0  Strong dominant trend / important pattern
+1.0  Weak or less significant trend
+
+Recommendations:
+User1 → Recommended genre: Action
+
+→ The dominant eigenvalue (λ=4) corresponds to the "all genres
+  equally liked" direction — A@[5,5,5] is maximized in the
+  Action component, driving the recommendation.</pre>
+  </div>
+</div>
+
+</div>
+
+<footer>KLE Technological University · Linear Algebra Lab — 8 Experiments</footer>
+
+<script>
+function toggle(id){
+  var el = document.getElementById(id);
+  var btn = el.previousElementSibling;
+  el.classList.toggle('open');
+  btn.textContent = el.classList.contains('open') ? '▼ Hide Code' : '▶ Show Code';
+}
+</script>
+</body>
+</html>
